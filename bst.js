@@ -148,8 +148,22 @@ BinaryTree.prototype.getHeight = function () {
 
 BinaryTree.prototype._getHeight = function (node) {
   if (!node) return 0
-  return 1 + Math.max(this._getHeight(node._left), this._getHeight)
-  
+  return 1 + Math.max(this._getHeight(node._left), this._getHeight(node._right))  
+}
+
+BinaryTree.prototype.lowestCommonAncestor = function (firstNode, secondNode) {
+  return this._lowestCommonAncestor(firstNode, secondNode, this._root)
+}
+
+BinaryTree.prototype._lowestCommonAncestor = function (firstNode, secondNode, current) {
+  let firstNodeInLeft = this._existInSubtree(firstNode, current._left)
+  let secondNodeInLeft = this._existInSubtree(secondNode, current._left)
+  let firstNodeInRight = this._existInSubtree(firstNode, current._right)
+  let secondNodeInRight = this._existInSubtree(secondNode, current._right)
+  if ((firstNodeInLeft && secondNodeInRight) || (firstNodeInRight && secondNodeInLeft)) return current
+  if (secondNodeInLeft && firstNodeInLeft) return this._lowestCommonAncestor(firstNode, secondNode, current._left)
+  if (secondNodeInRight && secondNodeInLeft) return this._lowestCommonAncestor(firstNode, secondNode, current._right)
+  return null
 }
 let bst = new BinaryTree()
 console.log(bst)
