@@ -1,119 +1,185 @@
 class Node {
-	constructor (data, left = null, right = null) {
-		this.data = data
-		this.left = left
-		this.right = right
-	}
+  constructor (data) {
+    this.data = data
+    this.left = null
+    this.right = null
+  }
 }
-class BST {
-	constructor () {
-		this.root = null
-	}
-	add (data) {
-		const node = this.root
-		if (node === null) {
-			this.root = new Node(data)
-			return
-		} else {
-			const searchTree = function (node) {
-				if (data < node.data) {
-					if (node.left === null) {
-						node.left = new Node(data)
-						return
-					} else if (node.left !== null) {
-						return searchTree(node.left)
-					}
-				} else if (data > node.right) {
-					if (node.right === null) {
-						node.right = new Node(data)
-						return
-					} else if (node.right !== null) {
-						return searchTree(node.right)
-					}
-				} else {
-					return null
-				}
-			}
-			return searchTree(node)
-		}
-	}
-	findMin() {
-		let current = this.root
-		while (current.left !== null) {
-			current = current.left
-		}
-		return current.data
-	}
-	findMax() {
-		let current = this.root
-		while (current.right !== null) {
-			current = current.right
-		}
-		return current.root
-	}
-	find(data) {
-		let current = this.root
-		while (current.data !== null) {
-			if (data < current.data) {
-				current = current.left
-			} else {
-				current = current.right
-			}
-			if (current === null) {
-				return null
-			}
-		}
-		return current
-	}
-	isPresent(data) {
-		let current = this.root
-		while (current) {
-			if (data === current.data) {
-				return true
-			}
-			if (data < current.data) {
-				current = current.left
-			} else {
-				current = current.right
-			}
-		}
-		return false
-	}
-	remove(data) {
-		const removeNode = function(node, data) {
-			if (node == null) {
-				return null
-			}
-			if (data == node.data) {
-				// node has no children
-				if (node.left == null && node.right == null) {
-					return null
-				}
-				// node has no left child
-				if (node.left == null) {
-					return node.right
-				}
-				// node has no right child
-				if (node.right == null) {
-					return node.left
-				}
-				// node has two children
-				var tempNode = node.right
-				while (tempNode.left !== null) {
-					tempNode = tempNode.left
-				}
-				node.data = tempNode.data
-				node.right = removeNode(node.right, tempNode.data)
-				return node
-			} else if (data < node.data) {
-				node.left = removeNode(node.left, data)
-				return node
-			} else {
-				node.right = removeNode(node.right, data)
-				return node
-			}
-		}
-		this.root = removeNode(this.root, data)
-	}
-	
+
+class BinarySearchTree {
+  constructor () {
+    this.root = null
+  }
+  
+  insert (data) {
+    let newNode = new Node(data)
+    if (this.root === null) this.root = newNode
+    else this.insertNode(this.root, newNode)
+  }
+
+  insertNode(node, newNode) {
+    if (newNode.data < node.data) {
+      if (node.left === null) node.left = newNode
+      else this.insertNode(node.left, newNode)
+    }
+    else {
+      if (node.right === null) node.right = newNode
+      else this.insertNode(node.right, newNode)
+    }
+  }
+
+  remove(data) {
+    this.root = this.removeNode(this.root, data)
+  }
+
+  removeNode(node, key) {
+    if (node === null) return null
+    else if (key < node.data) {
+      node.left = this.removeNode(node.left, key)
+      return node
+    }
+    else if (key > node.data) {
+      node.right = this.removeNode(node.right, key)
+      return node
+    }
+    else {
+      if (node.left === null && node.right === null) {
+        node = null
+        return node
+      }
+      if (node.left === null) {
+        node = node.right
+        return node
+      }
+      if (node.right === null) {
+        node = node.left
+        return node
+      }
+      let aux = this.findMinNode(node.right)
+      node.data = aux.data
+      node.right = this.removeNode(node.right, aux.data)
+      return node
+    }
+  }
+
+  inorder (node) {
+    if (node !== null) {
+      this.inorder(node.left)
+      console.log(node.data)
+      this.inorder(node.right)
+    }
+  }
+
+  preorder (node) {
+    if (node !== null) {
+      console.log(node.data)
+      this.preorder(node.left)
+      this.preorder(node.right)
+    }
+  }
+
+  postorder (node) {
+    if (node !== null) {
+      this.postorder(node.left)
+      this.postorder(node.right)
+      console.log(node.data)
+    }
+  }
+  
+  findMinNode (node) {
+    if (node.left === null) return node
+    else return this.findMinNode(node.left)
+  }
+
+  getRootNode () {
+    return this.root
+  }
+
+  search(node, data) {
+    if (node === null) return null
+    else if (data < node.data) return this.search(node.left, data)
+    else if (data > node.data) return this.search(node.right, data)
+    else return node
+  }
 }
+// create an object for the BinarySearchTree
+let BST = new BinarySearchTree();
+ 
+// Inserting nodes to the BinarySearchTree
+BST.insert(15);
+BST.insert(25);
+BST.insert(10);
+BST.insert(7);
+BST.insert(22);
+BST.insert(17);
+BST.insert(13);
+BST.insert(5);
+BST.insert(9);
+BST.insert(27);
+console.log(BST)                     
+//          15
+//         /  \
+//        10   25
+//       / \   / \
+//      7  13 22  27
+//     / \    /
+//    5   9  17 
+ 
+let root = BST.getRootNode();
+console.log('Root-> ',root)             
+// prints 5 7 9 10 13 15 17 22 25 27
+BST.inorder(root);             
+// Removing node with no children 
+BST.remove(5);
+             
+             
+//          15
+//         /  \
+//        10   25
+//       / \   / \
+//      7  13 22  27
+//       \    /
+//        9  17 
+             
+                         
+root = BST.getRootNode();
+             
+// prints 7 9 10 13 15 17 22 25 27
+BST.inorder(root);
+             
+// Removing node with one children 
+BST.remove(7);
+             
+//          15
+//         /  \
+//        10   25
+//       / \   / \
+//      9  13 22  27
+//            /
+//           17 
+             
+             
+root = BST.getRootNode();
+ 
+// prints 9 10 13 15 17 22 25 27
+BST.inorder(root);
+             
+// Removing node with two children 
+BST.remove(15);
+     
+//          17
+//         /  \
+//        10   25
+//       / \   / \
+//      9  13 22  27
+ 
+root = BST.getRootNode();
+console.log("inorder traversal");
+ 
+// prints 9 10 13 17 22 25 27
+BST.inorder(root);
+             
+console.log("postorder traversal");
+BST.postorder(root);
+console.log("preorder traversal");
+BST.preorder(root);
