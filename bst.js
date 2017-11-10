@@ -39,7 +39,6 @@ BinaryTree.prototype.inorder = function (callback) {
 
 BinaryTree.prototype._postorder = function (current, callback) {
   if (!current) return
-
   this._postorder(current._left, callback)
   this._postorder(current._right, callback)
   if (typeof callback === 'function')  callback(current)
@@ -63,8 +62,8 @@ BinaryTree.prototype.preorder = function (callback) {
 BinaryTree.prototype._find = function (value, current) {
   if (!current) return null
   if (current.value === value) return current
-  if (current.value > value) return this._find(value, current.left)
-  if (current.value < value) return this._find(value, current.right)
+  if (current.value > value) return this._find(value, current._left)
+  if (current.value < value) return this._find(value, current._right)
 }
 
 BinaryTree.prototype.find = function (value) {
@@ -99,7 +98,7 @@ BinaryTree.prototype.remove = function (node) {
 }
 
 BinaryTree.prototype._findMin = function (node, current) {
-  current = current || { value: -Infinity }
+  current = current || { value: Infinity }
   if (!node) return current
   if (current.value > node.value) current = node
   return this._findMin(node._left, current)
@@ -165,10 +164,39 @@ BinaryTree.prototype._lowestCommonAncestor = function (firstNode, secondNode, cu
   if (secondNodeInRight && secondNodeInLeft) return this._lowestCommonAncestor(firstNode, secondNode, current._right)
   return null
 }
+
+BinaryTree.prototype._existsInSubtree = function (node, root) {
+  if (!root) return false
+  if (node === root.value) return true
+  return this._existInSubtree(node, root._left) || this._existInSubtree(node, root._right)
+}
 let bst = new BinaryTree()
-console.log(bst)
-bst.insert(20)
-bst.insert(20, 10)
-bst.insert(10, 5)
-bst.insert(10, 12)
-console.log(bst)
+bst.insert(2000)
+bst.insert(1989)
+bst.insert(1991)
+bst.insert(2001)
+bst.insert(1966)
+let node = bst.find(1989)
+console.log(node.value) // 1989
+let minNode = bst.findMin()
+console.log(minNode.value) // 1966
+let maxNode = bst.findMax()
+console.log(maxNode.value) //2001
+let diameter = bst.getDiameter()
+console.log(diameter)
+let height = bst.getHeight()
+console.log(height)
+let arr = []
+const pusher = x => arr.push(x.value)
+console.log('\nInorder\n')
+
+bst.inorder(pusher)
+console.log(arr)
+arr = []
+console.log('\nPostorder\n')
+bst.postorder(pusher)
+console.log(arr)
+arr = []
+console.log('\nPreorder\n')
+bst.preorder(pusher)
+console.log(arr)
