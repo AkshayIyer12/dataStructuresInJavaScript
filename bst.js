@@ -30,7 +30,7 @@ BinaryTree.prototype._inorder = function (current, callback) {
 
   this._inorder(current._left, callback)
   if (typeof callback === 'function') callback(current)
-  this._inorder(current.right, callback)
+  this._inorder(current._right, callback)
 }
 
 BinaryTree.prototype.inorder = function (callback) {
