@@ -1,185 +1,160 @@
-class Node {
-  constructor (data) {
-    this.data = data
-    this.left = null
-    this.right = null
+const Node = function (value, left, right, parent) {
+  this.value = value
+  this._left = left
+  this._right = right
+  this._parent = parent
+}
+
+const BinaryTree = function () {
+  this._root = null
+}
+
+BinaryTree.prototype.insert = function (value, current) {
+  if (this._root === null) {
+    this._root = new Node(value, null, null, null)
+    return
+  }
+
+  let insertKey
+  current = current || this._root
+  
+  if (current.value > value) insertKey = '_left'
+  else insertKey = '_right'
+  
+  if (!current[insertKey]) current[insertKey] = new Node(value, null, null, current)
+  else this.insert(value, current[insertKey]) 
+}
+
+BinaryTree.prototype._inorder = function (current, callback) {
+  if (!current) return
+
+  this._inorder(current._left, callback)
+  if (typeof callback === 'function') callback(current)
+  this._inorder(current.right, callback)
+}
+
+BinaryTree.prototype.inorder = function (callback) {
+  return this._inorder(this._root, callback)
+}
+
+BinaryTree.prototype._postorder = function (current, callback) {
+  if (!current) return
+
+  this._postorder(current._left, callback)
+  this._postorder(current._right, callback)
+  if (typeof callback === 'function')  callback(current)
+}
+
+BinaryTree.prototype.postorder = function (callback) {
+  return this._postorder(this.root, callback)
+}
+
+BinaryTree.prototype._preorder = function (current, callback) {
+  if (!current) return
+  if (typeof callback === 'function') callback(current)
+  this._preorder(current._left, callback)
+  this._preorder(current._right, callback)
+}
+
+BinaryTree.prototype.preorder = function (callback) {
+  return this._preorder(this._root, callback)
+}
+
+BinaryTree.prototype._find = function (value, current) {
+  if (!current) return null
+  if (current.value === value) return current
+  if (current.value > value) return this._find(value, current.left)
+  if (current.value < value) return this._find(value, current.right)
+}
+
+BinaryTree.prototype.find = function (value) {
+  return this._find(value, this._root)
+}
+
+BinaryTree.prototype._replaceChild = function (parent, oldChild, newChild) {
+  if (!parent) {
+    this._root = newChild
+    if (this.root !== null) this._root_parent = null
+  } else {
+    if (parent._left === oldChild) parent._left = newChild
+    else parent._right = newChild
+    if (newChild) newChild._parent = parent
   }
 }
 
-class BinarySearchTree {
-  constructor () {
-    this.root = null
-  }
-  
-  insert (data) {
-    let newNode = new Node(data)
-    if (this.root === null) this.root = newNode
-    else this.insertNode(this.root, newNode)
-  }
-
-  insertNode(node, newNode) {
-    if (newNode.data < node.data) {
-      if (node.left === null) node.left = newNode
-      else this.insertNode(node.left, newNode)
-    }
-    else {
-      if (node.right === null) node.right = newNode
-      else this.insertNode(node.right, newNode)
-    }
-  }
-
-  remove(data) {
-    this.root = this.removeNode(this.root, data)
-  }
-
-  removeNode(node, key) {
-    if (node === null) return null
-    else if (key < node.data) {
-      node.left = this.removeNode(node.left, key)
-      return node
-    }
-    else if (key > node.data) {
-      node.right = this.removeNode(node.right, key)
-      return node
-    }
-    else {
-      if (node.left === null && node.right === null) {
-        node = null
-        return node
-      }
-      if (node.left === null) {
-        node = node.right
-        return node
-      }
-      if (node.right === null) {
-        node = node.left
-        return node
-      }
-      let aux = this.findMinNode(node.right)
-      node.data = aux.data
-      node.right = this.removeNode(node.right, aux.data)
-      return node
-    }
-  }
-
-  inorder (node) {
-    if (node !== null) {
-      this.inorder(node.left)
-      console.log(node.data)
-      this.inorder(node.right)
-    }
-  }
-
-  preorder (node) {
-    if (node !== null) {
-      console.log(node.data)
-      this.preorder(node.left)
-      this.preorder(node.right)
-    }
-  }
-
-  postorder (node) {
-    if (node !== null) {
-      this.postorder(node.left)
-      this.postorder(node.right)
-      console.log(node.data)
-    }
-  }
-  
-  findMinNode (node) {
-    if (node.left === null) return node
-    else return this.findMinNode(node.left)
-  }
-
-  getRootNode () {
-    return this.root
-  }
-
-  search(node, data) {
-    if (node === null) return null
-    else if (data < node.data) return this.search(node.left, data)
-    else if (data > node.data) return this.search(node.right, data)
-    else return node
+BinaryTree.prototype.remove = function (node) {
+  if (!node) return false
+  if (node._left && node._right) {
+    let min = this._findMin(node._right)
+    let temp = node.value
+    node.value = min.value
+    min.value = temp
+    return this.remove(min)
+  } else {
+    if (node._left) this._replaceChild(node._parent, node, node._left)
+    else if (node._right) this._replaceChild(node._parent, node, node._right)
+    else this._replaceChild(node._parent, node, null)
+    return true
   }
 }
-// create an object for the BinarySearchTree
-let BST = new BinarySearchTree();
- 
-// Inserting nodes to the BinarySearchTree
-BST.insert(15);
-BST.insert(25);
-BST.insert(10);
-BST.insert(7);
-BST.insert(22);
-BST.insert(17);
-BST.insert(13);
-BST.insert(5);
-BST.insert(9);
-BST.insert(27);
-console.log(BST)                     
-//          15
-//         /  \
-//        10   25
-//       / \   / \
-//      7  13 22  27
-//     / \    /
-//    5   9  17 
- 
-let root = BST.getRootNode();
-console.log('Root-> ',root)             
-// prints 5 7 9 10 13 15 17 22 25 27
-BST.inorder(root);             
-// Removing node with no children 
-BST.remove(5);
-             
-             
-//          15
-//         /  \
-//        10   25
-//       / \   / \
-//      7  13 22  27
-//       \    /
-//        9  17 
-             
-                         
-root = BST.getRootNode();
-             
-// prints 7 9 10 13 15 17 22 25 27
-BST.inorder(root);
-             
-// Removing node with one children 
-BST.remove(7);
-             
-//          15
-//         /  \
-//        10   25
-//       / \   / \
-//      9  13 22  27
-//            /
-//           17 
-             
-             
-root = BST.getRootNode();
- 
-// prints 9 10 13 15 17 22 25 27
-BST.inorder(root);
-             
-// Removing node with two children 
-BST.remove(15);
-     
-//          17
-//         /  \
-//        10   25
-//       / \   / \
-//      9  13 22  27
- 
-root = BST.getRootNode();
-console.log("inorder traversal");
- 
-// prints 9 10 13 17 22 25 27
-BST.inorder(root);
-             
-console.log("postorder traversal");
-BST.postorder(root);
-console.log("preorder traversal");
-BST.preorder(root);
+
+BinaryTree.prototype._findMin = function (node, current) {
+  current = current || { value: -Infinity }
+  if (!node) return current
+  if (current.value > node.value) current = node
+  return this._findMin(node._left, current)
+}
+
+BinaryTree.prototype._findMax = function (node, current) {
+  current = current || { value: -Infinity }
+  if (!node) return current
+  if (current.value < node.value) current = node
+  return this._findMax(node._right, current)
+}
+
+BinaryTree.prototype.findMin = function () {
+  return this._findMin(this._root)
+}
+
+BinaryTree.prototype.findMax = function () {
+  return this._findMax(this._root)
+}
+
+BinaryTree.prototype._isBalanced = function (current) {
+  if (!current) return true
+  return this._isBalanced(current._left) &&
+    this._isBalanced(current._right) &&
+    Math.abs(this._getHeight(current._left) - this._getHeight(current._right)) <= 1
+}
+
+BinaryTree.prototype.isBalanced = function () {
+  return this._isBalanced(this._root)
+}
+
+BinaryTree.prototype.getDiameter = function () {
+  let getDiameter = function (root) {
+    if (!root) return 0
+    let leftHeight = this._getHeight(root._left)
+    let rightHeight = this._getHeight(root._right)
+    let path = leftHeight + rightHeight + 1
+    return Math.max(path, getDiameter(root._left), getDiameter(root._right))
+  }.bind(this)
+  return getDiameter(this._root)
+}
+
+BinaryTree.prototype.getHeight = function () {
+  return this._getHeight(this._root)
+}
+
+BinaryTree.prototype._getHeight = function (node) {
+  if (!node) return 0
+  return 1 + Math.max(this._getHeight(node._left), this._getHeight)
+  
+}
+let bst = new BinaryTree()
+console.log(bst)
+bst.insert(20)
+bst.insert(20, 10)
+bst.insert(10, 5)
+bst.insert(10, 12)
+console.log(bst)
